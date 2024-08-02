@@ -134,7 +134,17 @@ if [[ ${INPUT_PRINT_HASH,,} != "false" || ${INPUT_VERBOSE,,} != "false" ]] ; the
     python /app/print-hash.py ${INPUT_PACKAGES_DIR%%/}
 fi
 
-TWINE_USERNAME="$INPUT_USER" \
-TWINE_PASSWORD="$INPUT_PASSWORD" \
-TWINE_REPOSITORY_URL="$INPUT_REPOSITORY_URL" \
-  exec twine upload ${TWINE_EXTRA_ARGS} ${INPUT_PACKAGES_DIR%%/}/*
+TWINE_RESULT=$(
+    TWINE_USERNAME="$INPUT_USER" \
+    TWINE_PASSWORD="$INPUT_PASSWORD" \
+    TWINE_REPOSITORY_URL="$INPUT_REPOSITORY_URL" \
+        twine upload ${TWINE_EXTRA_ARGS} ${INPUT_PACKAGES_DIR%%/}/*
+)
+TWINE_RETURN=$?
+
+if [[ "$TWINE_RESULT" =~ View\ at:\ *\(https?://[^[:space:]]+\) ]]; then
+    RELEASE_URL="${BASH_REMATCH[1]}"
+    echo "release-url=$RELEASE_URL" >> "$GITHUB_OUTPUT"
+fi
+
+exit $TWINE_RETURN
