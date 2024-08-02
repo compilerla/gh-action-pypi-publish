@@ -17,6 +17,11 @@ export PATH="/usr/bin:${PATH}"  # To find `id`
 export PATH="$(python -m site --user-base)/bin:${PATH}"
 export PYTHONPATH="$(python -m site --user-site):${PYTHONPATH}"
 
+# NOTE: This variable is set by GitHub Actions, but not available locally
+# NOTE: The temp file is cleaned up at the end
+# Ref: https://github.com/pypa/gh-action-pypi-publish/issues/97
+GITHUB_OUTPUT_TEMP=$(mktemp /tmp/github-output.XXXXXX)
+export GITHUB_OUTPUT="${GITHUB_OUTPUT:-GITHUB_OUTPUT_TEMP}"
 
 function get-normalized-input() {
   local var_name=${1}
@@ -146,5 +151,7 @@ if [[ "$TWINE_RESULT" =~ View\ at:\ *\(https?://[^[:space:]]+\) ]]; then
     RELEASE_URL="${BASH_REMATCH[1]}"
     echo "release-url=$RELEASE_URL" >> "$GITHUB_OUTPUT"
 fi
+
+rm "$GITHUB_OUTPUT_TEMP"
 
 exit $TWINE_RETURN
