@@ -80,6 +80,10 @@ inputs:
       Use `print-hash` instead.
     required: false
     default: 'false'
+outputs:
+  release-url:
+    description: >-
+      The URL on the package index of the newly uploaded package.
 branding:
   color: yellow
   icon: upload-cloud
